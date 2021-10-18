@@ -1,0 +1,1984 @@
+---
+title: "Combining two cytotoxic agents with continuous dose levels in phase I-II clinical trials"
+author: "José L. Jiménez (jose_luis.jimenez@novartis.com) and Mourad Tighiouart (mourad.tighiouart@cshs.org )"
+output:
+  html_notebook:
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+#### True dose-toxicity and dose-efficacy scenarios
+
+We consider two dose-toxicity scenarios and, within each dose-toxicity scenario, four dose-efficacy profiles that place the most efficacious dose combination in a different part of the MTD curve.
+
+```{r, echo=FALSE}
+# setwd("/home/jimenjox/Research/Combining two cytotoxic agents with continuous dose levels in phase I-II clinical trials/R code/")
+
+setwd("~/Dropbox/Research/2021/Combining two cytotoxic agents with continuous dose levels in phase I-II clinical trials/R code")
+
+path = paste0(getwd(),"/")
+path_intermediate_outputs = paste0(getwd(),"/intermediate_outputs/")
+path_outputs = paste0(getwd(),"/paper_outputs/")
+library(tidyverse)
+library(ggpubr)
+
+source("pdlt.R")
+source("peff.R")
+source("twodimmtd2.R")
+source("parameters_declaration.R")
+
+```
+
+
+
+```{r, fig.width= 7, fig.height= 7}
+
+#Dose-toxicity scenarios
+
+grid_DLT_sc1_df = data.frame(x = seq(0, by = 0.001,1)) %>%
+  mutate(y_mtd = twodimmtd2(rho00 = true_rho00_DLT_sc1, rho01 = true_rho01_DLT_sc1, 
+                            rho10 = true_rho10_DLT_sc1, alpha3 = true_alpha3_DLT_sc1, 
+                            theta = theta_Z, x = x)) %>%
+  filter(y_mtd >= 0 & y_mtd <= 1) 
+
+grid_DLT_sc2_df = data.frame(x = seq(0, by = 0.001,1)) %>%
+  mutate(y_mtd = twodimmtd2(rho00 = true_rho00_DLT_sc2, rho01 = true_rho01_DLT_sc2, 
+                            rho10 = true_rho10_DLT_sc2, alpha3 = true_alpha3_DLT_sc2, 
+                            theta = theta_Z, x = x)) %>%
+  filter(y_mtd >= 0 & y_mtd <= 1) 
+
+#Dose-efficacy scenarios along the MTD under H0
+
+grid_DLT_sc1_EFF_sc1_H0_df = grid_DLT_sc1_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc1_EFF_sc1_H0,
+                     true_beta1_DLT_sc1_EFF_sc1_H0,
+                     true_beta2_DLT_sc1_EFF_sc1_H0,
+                     true_beta3_DLT_sc1_EFF_sc1_H0,
+                     true_beta4_DLT_sc1_EFF_sc1_H0,
+                     true_beta5_DLT_sc1_EFF_sc1_H0,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 1",
+         EFF_scenario = "Dose-efficacy scenario 1",
+         hypothesis = "null hypothesis")
+
+grid_DLT_sc1_EFF_sc2_H0_df = grid_DLT_sc1_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc1_EFF_sc2_H0,
+                     true_beta1_DLT_sc1_EFF_sc2_H0,
+                     true_beta2_DLT_sc1_EFF_sc2_H0,
+                     true_beta3_DLT_sc1_EFF_sc2_H0,
+                     true_beta4_DLT_sc1_EFF_sc2_H0,
+                     true_beta5_DLT_sc1_EFF_sc2_H0,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 1",
+         EFF_scenario = "Dose-efficacy scenario 2",
+         hypothesis = "null hypothesis")
+
+grid_DLT_sc1_EFF_sc3_H0_df = grid_DLT_sc1_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc1_EFF_sc3_H0,
+                     true_beta1_DLT_sc1_EFF_sc3_H0,
+                     true_beta2_DLT_sc1_EFF_sc3_H0,
+                     true_beta3_DLT_sc1_EFF_sc3_H0,
+                     true_beta4_DLT_sc1_EFF_sc3_H0,
+                     true_beta5_DLT_sc1_EFF_sc3_H0,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 1",
+         EFF_scenario = "Dose-efficacy scenario 3",
+         hypothesis = "null hypothesis")
+
+grid_DLT_sc1_EFF_sc4_H0_df = grid_DLT_sc1_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc1_EFF_sc4_H0,
+                     true_beta1_DLT_sc1_EFF_sc4_H0,
+                     true_beta2_DLT_sc1_EFF_sc4_H0,
+                     true_beta3_DLT_sc1_EFF_sc4_H0,
+                     true_beta4_DLT_sc1_EFF_sc4_H0,
+                     true_beta5_DLT_sc1_EFF_sc4_H0,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 1",
+         EFF_scenario = "Dose-efficacy scenario 4",
+         hypothesis = "null hypothesis")
+
+
+grid_DLT_sc2_EFF_sc1_H0_df = grid_DLT_sc2_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc2_EFF_sc1_H0,
+                     true_beta1_DLT_sc2_EFF_sc1_H0,
+                     true_beta2_DLT_sc2_EFF_sc1_H0,
+                     true_beta3_DLT_sc2_EFF_sc1_H0,
+                     true_beta4_DLT_sc2_EFF_sc1_H0,
+                     true_beta5_DLT_sc2_EFF_sc1_H0,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 2",
+         EFF_scenario = "Dose-efficacy scenario 1",
+         hypothesis = "null hypothesis")
+
+grid_DLT_sc2_EFF_sc2_H0_df = grid_DLT_sc2_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc2_EFF_sc2_H0,
+                     true_beta1_DLT_sc2_EFF_sc2_H0,
+                     true_beta2_DLT_sc2_EFF_sc2_H0,
+                     true_beta3_DLT_sc2_EFF_sc2_H0,
+                     true_beta4_DLT_sc2_EFF_sc2_H0,
+                     true_beta5_DLT_sc2_EFF_sc2_H0,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 2",
+         EFF_scenario = "Dose-efficacy scenario 2",
+         hypothesis = "null hypothesis")
+
+grid_DLT_sc2_EFF_sc3_H0_df = grid_DLT_sc2_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc2_EFF_sc3_H0,
+                     true_beta1_DLT_sc2_EFF_sc3_H0,
+                     true_beta2_DLT_sc2_EFF_sc3_H0,
+                     true_beta3_DLT_sc2_EFF_sc3_H0,
+                     true_beta4_DLT_sc2_EFF_sc3_H0,
+                     true_beta5_DLT_sc2_EFF_sc3_H0,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 2",
+         EFF_scenario = "Dose-efficacy scenario 3",
+         hypothesis = "null hypothesis")
+
+grid_DLT_sc2_EFF_sc4_H0_df = grid_DLT_sc2_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc2_EFF_sc4_H0,
+                     true_beta1_DLT_sc2_EFF_sc4_H0,
+                     true_beta2_DLT_sc2_EFF_sc4_H0,
+                     true_beta3_DLT_sc2_EFF_sc4_H0,
+                     true_beta4_DLT_sc2_EFF_sc4_H0,
+                     true_beta5_DLT_sc2_EFF_sc4_H0,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 2",
+         EFF_scenario = "Dose-efficacy scenario 4",
+         hypothesis = "null hypothesis")
+
+
+#Dose-efficacy scenarios along the MTD under H1
+
+grid_DLT_sc1_EFF_sc1_H1_df = grid_DLT_sc1_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc1_EFF_sc1_H1,
+                     true_beta1_DLT_sc1_EFF_sc1_H1,
+                     true_beta2_DLT_sc1_EFF_sc1_H1,
+                     true_beta3_DLT_sc1_EFF_sc1_H1,
+                     true_beta4_DLT_sc1_EFF_sc1_H1,
+                     true_beta5_DLT_sc1_EFF_sc1_H1,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 1",
+         EFF_scenario = "Dose-efficacy scenario 1",
+         hypothesis = "alternative hypothesis")
+
+grid_DLT_sc1_EFF_sc2_H1_df = grid_DLT_sc1_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc1_EFF_sc2_H1,
+                     true_beta1_DLT_sc1_EFF_sc2_H1,
+                     true_beta2_DLT_sc1_EFF_sc2_H1,
+                     true_beta3_DLT_sc1_EFF_sc2_H1,
+                     true_beta4_DLT_sc1_EFF_sc2_H1,
+                     true_beta5_DLT_sc1_EFF_sc2_H1,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 1",
+         EFF_scenario = "Dose-efficacy scenario 2",
+         hypothesis = "alternative hypothesis")
+
+grid_DLT_sc1_EFF_sc3_H1_df = grid_DLT_sc1_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc1_EFF_sc3_H1,
+                     true_beta1_DLT_sc1_EFF_sc3_H1,
+                     true_beta2_DLT_sc1_EFF_sc3_H1,
+                     true_beta3_DLT_sc1_EFF_sc3_H1,
+                     true_beta4_DLT_sc1_EFF_sc3_H1,
+                     true_beta5_DLT_sc1_EFF_sc3_H1,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 1",
+         EFF_scenario = "Dose-efficacy scenario 3",
+         hypothesis = "alternative hypothesis")
+
+grid_DLT_sc1_EFF_sc4_H1_df = grid_DLT_sc1_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc1_EFF_sc4_H1,
+                     true_beta1_DLT_sc1_EFF_sc4_H1,
+                     true_beta2_DLT_sc1_EFF_sc4_H1,
+                     true_beta3_DLT_sc1_EFF_sc4_H1,
+                     true_beta4_DLT_sc1_EFF_sc4_H1,
+                     true_beta5_DLT_sc1_EFF_sc4_H1,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 1",
+         EFF_scenario = "Dose-efficacy scenario 4",
+         hypothesis = "alternative hypothesis")
+
+
+grid_DLT_sc2_EFF_sc1_H1_df = grid_DLT_sc2_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc2_EFF_sc1_H1,
+                     true_beta1_DLT_sc2_EFF_sc1_H1,
+                     true_beta2_DLT_sc2_EFF_sc1_H1,
+                     true_beta3_DLT_sc2_EFF_sc1_H1,
+                     true_beta4_DLT_sc2_EFF_sc1_H1,
+                     true_beta5_DLT_sc2_EFF_sc1_H1,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 2",
+         EFF_scenario = "Dose-efficacy scenario 1",
+         hypothesis = "alternative hypothesis")
+
+grid_DLT_sc2_EFF_sc2_H1_df = grid_DLT_sc2_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc2_EFF_sc2_H1,
+                     true_beta1_DLT_sc2_EFF_sc2_H1,
+                     true_beta2_DLT_sc2_EFF_sc2_H1,
+                     true_beta3_DLT_sc2_EFF_sc2_H1,
+                     true_beta4_DLT_sc2_EFF_sc2_H1,
+                     true_beta5_DLT_sc2_EFF_sc2_H1,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 2",
+         EFF_scenario = "Dose-efficacy scenario 2",
+         hypothesis = "alternative hypothesis")
+
+grid_DLT_sc2_EFF_sc3_H1_df = grid_DLT_sc2_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc2_EFF_sc3_H1,
+                     true_beta1_DLT_sc2_EFF_sc3_H1,
+                     true_beta2_DLT_sc2_EFF_sc3_H1,
+                     true_beta3_DLT_sc2_EFF_sc3_H1,
+                     true_beta4_DLT_sc2_EFF_sc3_H1,
+                     true_beta5_DLT_sc2_EFF_sc3_H1,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 2",
+         EFF_scenario = "Dose-efficacy scenario 3",
+         hypothesis = "alternative hypothesis")
+
+grid_DLT_sc2_EFF_sc4_H1_df = grid_DLT_sc2_df %>%
+  mutate(peff = peff(true_beta0_DLT_sc2_EFF_sc4_H1,
+                     true_beta1_DLT_sc2_EFF_sc4_H1,
+                     true_beta2_DLT_sc2_EFF_sc4_H1,
+                     true_beta3_DLT_sc2_EFF_sc4_H1,
+                     true_beta4_DLT_sc2_EFF_sc4_H1,
+                     true_beta5_DLT_sc2_EFF_sc4_H1,
+                     x,y_mtd),
+         DLT_scenario = "Dose-toxicity scenario 2",
+         EFF_scenario = "Dose-efficacy scenario 4",
+         hypothesis = "alternative hypothesis")
+
+
+grid_EFF_df = rbind(grid_DLT_sc1_EFF_sc1_H0_df, 
+                    grid_DLT_sc1_EFF_sc2_H0_df, 
+                    grid_DLT_sc1_EFF_sc3_H0_df,
+                    grid_DLT_sc1_EFF_sc4_H0_df, 
+                    grid_DLT_sc2_EFF_sc1_H0_df, 
+                    grid_DLT_sc2_EFF_sc2_H0_df,
+                    grid_DLT_sc2_EFF_sc3_H0_df,
+                    grid_DLT_sc2_EFF_sc4_H0_df,
+                    grid_DLT_sc1_EFF_sc1_H1_df, 
+                    grid_DLT_sc1_EFF_sc2_H1_df, 
+                    grid_DLT_sc1_EFF_sc3_H1_df,
+                    grid_DLT_sc1_EFF_sc4_H1_df, 
+                    grid_DLT_sc2_EFF_sc1_H1_df, 
+                    grid_DLT_sc2_EFF_sc2_H1_df,
+                    grid_DLT_sc2_EFF_sc3_H1_df,
+                    grid_DLT_sc2_EFF_sc4_H1_df)
+
+
+grid_DLT_dt = grid_EFF_df %>% select(-c(peff, EFF_scenario)) %>% distinct()
+
+
+#Produce plots
+
+plot_figure_1 = ggplot(grid_DLT_dt, aes(x = x, y = y_mtd)) + 
+  geom_line(size = 0.75) +
+  geom_point(aes(x=1/3, y=1/2), colour="black") +
+  annotate("text", x = 1/3 - 0.1, y = 1/2 - 0.1, label = "'3+3' MTD", size = 2.75) +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  scale_y_continuous(name = "Cabazitaxel", labels = function(y){y*(Ymax - Ymin) + Ymin}) +
+  labs(title = "") +
+  theme_bw() +
+  facet_wrap(~ DLT_scenario)
+
+plot_figure_1
+
+plot_figure_2 = ggplot(grid_EFF_df, aes(x = x, y = peff, linetype = hypothesis)) + 
+  geom_hline(yintercept=0.15, linetype="dashed", color = "red") +
+  geom_hline(yintercept=0.4, linetype="dashed", color = "green") +
+  geom_line(size = 0.75) +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  scale_y_continuous("Probability of efficacy") + 
+  theme_bw() +
+  labs(title = "", linetype = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ DLT_scenario + EFF_scenario, nrow = 2)
+
+plot_figure_2
+
+ggsave(paste0(path_outputs,"Figure_1.pdf"), plot_figure_1, width = 6, height = 3, dpi = 300) 
+
+ggsave(paste0(path_outputs,"Figure_2.pdf"), plot_figure_2, width = 8, height = 5, dpi = 300) 
+
+```
+
+#### Design's operating characteristics
+
+We read all the *.csv* files that contain the design's operating characteristics and create *data.frames* that have a termination indicating the DLT and efficacy scenarios (e.g., _DLT_sc1_EFF_sc1). This is an intermediate step that does not produce any ouput.
+
+
+
+```{r}
+
+
+#READ DATA FROM .CSV FILES AND PRODUCE PLOTS WITH DESIGN OPERATING CHARACTERISTICS
+
+#----------------------------------------------------------------------------------------#
+
+DLT_scenario_variables = "_DLT_sc1"
+EFF_scenario_variables = "_EFF_sc1"
+hypothesis = "_H0"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(hypothesis)
+
+hypothesis = "_H1"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(DLT_scenario_variables,EFF_scenario_variables,hypothesis)
+
+
+#----------------------------------------------------------------------------------------#
+
+DLT_scenario_variables = "_DLT_sc1"
+EFF_scenario_variables = "_EFF_sc2"
+hypothesis = "_H0"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(hypothesis)
+
+hypothesis = "_H1"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(DLT_scenario_variables,EFF_scenario_variables,hypothesis)
+
+
+#----------------------------------------------------------------------------------------#
+
+DLT_scenario_variables = "_DLT_sc1"
+EFF_scenario_variables = "_EFF_sc3"
+hypothesis = "_H0"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(hypothesis)
+
+hypothesis = "_H1"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(DLT_scenario_variables,EFF_scenario_variables,hypothesis)
+
+#----------------------------------------------------------------------------------------#
+
+DLT_scenario_variables = "_DLT_sc1"
+EFF_scenario_variables = "_EFF_sc4"
+hypothesis = "_H0"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(hypothesis)
+
+hypothesis = "_H1"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(DLT_scenario_variables,EFF_scenario_variables,hypothesis)
+
+#----------------------------------------------------------------------------------------#
+
+DLT_scenario_variables = "_DLT_sc2"
+EFF_scenario_variables = "_EFF_sc1"
+hypothesis = "_H0"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(hypothesis)
+
+hypothesis = "_H1"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(DLT_scenario_variables,EFF_scenario_variables,hypothesis)
+
+#----------------------------------------------------------------------------------------#
+
+DLT_scenario_variables = "_DLT_sc2"
+EFF_scenario_variables = "_EFF_sc2"
+hypothesis = "_H0"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(hypothesis)
+
+hypothesis = "_H1"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(DLT_scenario_variables,EFF_scenario_variables,hypothesis)
+
+#----------------------------------------------------------------------------------------#
+
+DLT_scenario_variables = "_DLT_sc2"
+EFF_scenario_variables = "_EFF_sc3"
+hypothesis = "_H0"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(hypothesis)
+
+hypothesis = "_H1"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(DLT_scenario_variables,EFF_scenario_variables,hypothesis)
+
+
+#----------------------------------------------------------------------------------------#
+
+DLT_scenario_variables = "_DLT_sc2"
+EFF_scenario_variables = "_EFF_sc4"
+hypothesis = "_H0"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(hypothesis)
+
+hypothesis = "_H1"
+
+do.call("<-",list(paste0("bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"correct_recommendation_MTD",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"power_or_typeIerror",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"sample_size_stopping_rules",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"proportion_allocation",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"bias_MSE_parameters",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"dose_combinations",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"MTD_curve",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"DLT_rate",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+do.call("<-",list(paste0("optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis),
+                  read.csv(paste0(path_intermediate_outputs,"optimal_dose_combination_above_threshold",DLT_scenario_variables,EFF_scenario_variables,hypothesis,".csv")) %>%
+                    dplyr::select(-X)))
+
+rm(DLT_scenario_variables,EFF_scenario_variables,hypothesis)
+
+```
+
+
+We now start to produce all the operating characteristics after running the design 1000 times. We start by showing the true *(solid line)* _versus_ the estimated *(dashed line)* MTD curves. We observe that around the center of the curve, in both dose-toxicity scenarios, the estimation is very good. In contrast, towards the extremes of the curves, the estimation is not as precise.
+
+
+```{r}
+#MTD curve
+
+estimated_MTD_curve_H0 = rbind(MTD_curve_DLT_sc1_EFF_sc1_H0,
+                               MTD_curve_DLT_sc1_EFF_sc2_H0,
+                               MTD_curve_DLT_sc1_EFF_sc3_H0,
+                               MTD_curve_DLT_sc1_EFF_sc4_H0,
+                               MTD_curve_DLT_sc2_EFF_sc1_H0,
+                               MTD_curve_DLT_sc2_EFF_sc2_H0,
+                               MTD_curve_DLT_sc2_EFF_sc3_H0,
+                               MTD_curve_DLT_sc2_EFF_sc4_H0) %>% 
+              filter(y <= 1 & y >= 0, 
+                     type == "Estimated MTD") %>%
+  mutate(curve_type = "Estimated MTD (H0)") %>%
+  dplyr::select(-type)
+
+estimated_MTD_curve_H1 = rbind(MTD_curve_DLT_sc1_EFF_sc1_H1,
+                               MTD_curve_DLT_sc1_EFF_sc2_H1,
+                               MTD_curve_DLT_sc1_EFF_sc3_H1,
+                               MTD_curve_DLT_sc1_EFF_sc4_H1,
+                               MTD_curve_DLT_sc2_EFF_sc1_H1,
+                               MTD_curve_DLT_sc2_EFF_sc2_H1,
+                               MTD_curve_DLT_sc2_EFF_sc3_H1,
+                               MTD_curve_DLT_sc2_EFF_sc4_H1) %>% 
+              filter(y <= 1 & y >= 0, 
+                     type == "Estimated MTD") %>%
+  mutate(curve_type = "Estimated MTD (H1)") %>%
+  dplyr::select(-type)
+
+true_MTD_curve = rbind(MTD_curve_DLT_sc1_EFF_sc1_H1,
+                       MTD_curve_DLT_sc1_EFF_sc2_H1,
+                       MTD_curve_DLT_sc1_EFF_sc3_H1,
+                       MTD_curve_DLT_sc1_EFF_sc4_H1,
+                       MTD_curve_DLT_sc2_EFF_sc1_H1,
+                       MTD_curve_DLT_sc2_EFF_sc2_H1,
+                       MTD_curve_DLT_sc2_EFF_sc3_H1,
+                       MTD_curve_DLT_sc2_EFF_sc4_H1) %>% 
+       filter(y <= 1 & y >= 0, 
+                     type == "True MTD") %>%
+  mutate(curve_type = "True MTD") %>%
+  dplyr::select(-type)
+
+MTD_curve_df = rbind(true_MTD_curve, estimated_MTD_curve_H1, estimated_MTD_curve_H0)
+MTD_curve_df$curve_type = factor(MTD_curve_df$curve_type,levels=c("True MTD","Estimated MTD (H1)", "Estimated MTD (H0)"))
+
+plot_MTD = ggplot(MTD_curve_df, aes(x = x, y = y, linetype = curve_type)) +
+  geom_line(aes(color = curve_type), size = 1, alpha = 0.8) +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  scale_y_continuous(name = "Cabazitaxel", labels = function(y){y*(Ymax - Ymin) + Ymin}) +
+  theme_bw() +
+  labs(title = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ DLT_scenario + EFF_scenario, nrow = 2)
+
+
+plot_MTD
+
+ggsave(paste0(path_outputs,"plot_MTD.pdf"), plot_MTD, width = 8, height = 5, dpi = 300)
+
+
+```
+
+This can be better observed with the point-wise average bias, where we see how bias is usually smaller towards the center of the curve.
+
+```{r}
+average_pointwise_MTD_bias_H0 = rbind(bias_MTD_DLT_sc1_EFF_sc1_H0,
+                                      bias_MTD_DLT_sc1_EFF_sc2_H0,
+                                      bias_MTD_DLT_sc1_EFF_sc3_H0,
+                                      bias_MTD_DLT_sc1_EFF_sc4_H0,
+                                      bias_MTD_DLT_sc2_EFF_sc1_H0,
+                                      bias_MTD_DLT_sc2_EFF_sc2_H0,
+                                      bias_MTD_DLT_sc2_EFF_sc3_H0,
+                                      bias_MTD_DLT_sc2_EFF_sc4_H0) %>%
+  mutate(hypothesis = "null hypothesis")
+
+average_pointwise_MTD_bias_H1 = rbind(bias_MTD_DLT_sc1_EFF_sc1_H1,
+                                      bias_MTD_DLT_sc1_EFF_sc2_H1,
+                                      bias_MTD_DLT_sc1_EFF_sc3_H1,
+                                      bias_MTD_DLT_sc1_EFF_sc4_H1,
+                                      bias_MTD_DLT_sc2_EFF_sc1_H1,
+                                      bias_MTD_DLT_sc2_EFF_sc2_H1,
+                                      bias_MTD_DLT_sc2_EFF_sc3_H1,
+                                      bias_MTD_DLT_sc2_EFF_sc4_H1) %>%
+  mutate(hypothesis = "alternative hypothesis")
+
+average_bias_per_scenario_H0 = average_pointwise_MTD_bias_H0 %>%
+  group_by(DLT_scenario, EFF_scenario) %>% 
+  summarise(average = mean(average_pointwise_MTD_bias))
+
+average_bias_per_scenario_H1 = average_pointwise_MTD_bias_H1 %>%
+  group_by(DLT_scenario, EFF_scenario) %>% 
+  summarise(average = mean(average_pointwise_MTD_bias))
+
+#knitr::kable(average_bias_per_scenario)
+
+average_pointwise_MTD_bias_df = rbind(average_pointwise_MTD_bias_H0, average_pointwise_MTD_bias_H1)
+
+
+plot_average_pointwise_MTD_bias = ggplot(average_pointwise_MTD_bias_df, aes(x = x_true_MTD, y = average_pointwise_MTD_bias, linetype = hypothesis)) +
+  geom_hline(yintercept=0, color = "gray") +
+  geom_line(size = 1) +
+  scale_y_continuous("Bias") +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  theme_bw() +
+  labs(title = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ DLT_scenario + EFF_scenario, nrow = 2)
+
+
+
+plot_average_pointwise_MTD_bias
+
+ggsave(paste0(path_outputs,"plot_average_pointwise_MTD_bias.pdf"), plot_average_pointwise_MTD_bias, width = 8, height = 5, dpi = 300) 
+
+```
+
+By looking at the percentage of correct MTD recommendations based on the two thresholds defined in the manuscript, we observe the same behavior observed in the bias.
+
+```{r}
+average_percent_correct_MTD_recommendation_H0 = rbind(correct_recommendation_MTD_DLT_sc1_EFF_sc1_H0,
+                                                      correct_recommendation_MTD_DLT_sc1_EFF_sc2_H0,
+                                                      correct_recommendation_MTD_DLT_sc1_EFF_sc3_H0,
+                                                      correct_recommendation_MTD_DLT_sc1_EFF_sc4_H0,
+                                                      correct_recommendation_MTD_DLT_sc2_EFF_sc1_H0,
+                                                      correct_recommendation_MTD_DLT_sc2_EFF_sc2_H0,
+                                                      correct_recommendation_MTD_DLT_sc2_EFF_sc3_H0,
+                                                      correct_recommendation_MTD_DLT_sc2_EFF_sc4_H0) %>%
+  mutate(threshold_val = ifelse(type == "Threshold 1", "Threshold p = 0.1","Threshold p = 0.2"))
+
+average_percent_correct_MTD_recommendation_H1 = rbind(correct_recommendation_MTD_DLT_sc1_EFF_sc1_H1,
+                                                      correct_recommendation_MTD_DLT_sc1_EFF_sc2_H1,
+                                                      correct_recommendation_MTD_DLT_sc1_EFF_sc3_H1,
+                                                      correct_recommendation_MTD_DLT_sc1_EFF_sc4_H1,
+                                                      correct_recommendation_MTD_DLT_sc2_EFF_sc1_H1,
+                                                      correct_recommendation_MTD_DLT_sc2_EFF_sc2_H1,
+                                                      correct_recommendation_MTD_DLT_sc2_EFF_sc3_H1,
+                                                      correct_recommendation_MTD_DLT_sc2_EFF_sc4_H1) %>%
+  mutate(threshold_val = ifelse(type == "Threshold 1", "Threshold p = 0.1","Threshold p = 0.2"))
+
+plot_correct_recommendation_MTD_H0 = ggplot(average_percent_correct_MTD_recommendation_H0, aes(x = x_true_MTD, y = percent_correct_MTD_recommentation*100, linetype = threshold_val)) +
+  geom_line(size = 0.75) +
+  scale_y_continuous("Percentage (%)") +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  theme_bw() +
+  labs(title = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ DLT_scenario + EFF_scenario, nrow = 2)
+
+plot_correct_recommendation_MTD_H1 = ggplot(average_percent_correct_MTD_recommendation_H1, aes(x = x_true_MTD, y = percent_correct_MTD_recommentation*100, linetype = threshold_val)) +
+  geom_line(size = 0.75) +
+  scale_y_continuous("Percentage (%)") +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  theme_bw() +
+  labs(title = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ DLT_scenario + EFF_scenario, nrow = 2)
+
+plot_correct_recommendation_MTD_H0
+plot_correct_recommendation_MTD_H1
+
+ggsave(paste0(path_outputs,"plot_correct_recommendation_MTD_H0.pdf"), plot_correct_recommendation_MTD_H0, width = 8, height = 5, dpi = 300) 
+ggsave(paste0(path_outputs,"plot_correct_recommendation_MTD_H1.pdf"), plot_correct_recommendation_MTD_H1, width = 8, height = 5, dpi = 300) 
+
+```
+We now present the average DLT rate together with the proportion of trials with DLT rate above $\theta_Z + 0.1$.
+
+```{r}
+
+DLT_rate_H0 = rbind(DLT_rate_DLT_sc1_EFF_sc1_H0,
+                    DLT_rate_DLT_sc1_EFF_sc2_H0,
+                    DLT_rate_DLT_sc1_EFF_sc3_H0,
+                    DLT_rate_DLT_sc1_EFF_sc4_H0,
+                    DLT_rate_DLT_sc2_EFF_sc1_H0,
+                    DLT_rate_DLT_sc2_EFF_sc2_H0,
+                    DLT_rate_DLT_sc2_EFF_sc3_H0,
+                    DLT_rate_DLT_sc2_EFF_sc4_H0) %>%
+  mutate(hypothesis = "null hypothesis",
+         DLT_rate_by_trial = round(DLT_rate_by_trial,3),
+         proportion_trial_with_DLT_rate_above_threshold = round(proportion_trial_with_DLT_rate_above_threshold*100,2))
+
+DLT_rate_H1 = rbind(DLT_rate_DLT_sc1_EFF_sc1_H1,
+                    DLT_rate_DLT_sc1_EFF_sc2_H1,
+                    DLT_rate_DLT_sc1_EFF_sc3_H1,
+                    DLT_rate_DLT_sc1_EFF_sc4_H1,
+                    DLT_rate_DLT_sc2_EFF_sc1_H1,
+                    DLT_rate_DLT_sc2_EFF_sc2_H1,
+                    DLT_rate_DLT_sc2_EFF_sc3_H1,
+                    DLT_rate_DLT_sc2_EFF_sc4_H1) %>%
+  mutate(hypothesis = "alternative hypothesis",
+         DLT_rate_by_trial = round(DLT_rate_by_trial,3),
+         proportion_trial_with_DLT_rate_above_threshold = round(proportion_trial_with_DLT_rate_above_threshold*100,2))
+
+DLT_rate = rbind(DLT_rate_H0,DLT_rate_H1)
+
+knitr::kable(DLT_rate)
+
+
+```
+
+We now see how the patients were allocated by the algorithm. We first show the dose combinations to which patient from Stage I were allocated together with the true MTD curve in form of a two-dimensional density. We see that in both dose-toxicity scenarios, the highest concentration of patients is located around the dose combination 15/75 $mg/m^2$. This is consistent with the fact that in this manuscript we have employed informative prior distribution on the dose-toxicity model parameters so that $E(P(DLT ~|~ x = 15 ~ mg/m^2, y = 75 ~ mg/m^2)) \approx \theta_Z$.
+
+```{r}
+
+dose_combinations_H0 = rbind(dose_combinations_DLT_sc1_EFF_sc1_H0,
+                             dose_combinations_DLT_sc1_EFF_sc2_H0,
+                             dose_combinations_DLT_sc1_EFF_sc3_H0,
+                             dose_combinations_DLT_sc1_EFF_sc4_H0,
+                             dose_combinations_DLT_sc2_EFF_sc1_H0,
+                             dose_combinations_DLT_sc2_EFF_sc2_H0,
+                             dose_combinations_DLT_sc2_EFF_sc3_H0,
+                             dose_combinations_DLT_sc2_EFF_sc4_H0)
+
+dose_combinations_H1 = rbind(dose_combinations_DLT_sc1_EFF_sc1_H1,
+                             dose_combinations_DLT_sc1_EFF_sc2_H1,
+                             dose_combinations_DLT_sc1_EFF_sc3_H1,
+                             dose_combinations_DLT_sc1_EFF_sc4_H1,
+                             dose_combinations_DLT_sc2_EFF_sc1_H1,
+                             dose_combinations_DLT_sc2_EFF_sc2_H1,
+                             dose_combinations_DLT_sc2_EFF_sc3_H1,
+                             dose_combinations_DLT_sc2_EFF_sc4_H1)
+
+dose_combinations_H0$cohort = rep(1:(NN_1+NN_2),1000)
+dose_combinations_H1$cohort = rep(1:(NN_1+NN_2),1000)
+
+plot_patient_allocation_stage1_H0 = ggplot(dose_combinations_H0 %>% filter(cohort <= 30), aes(x,y)) +
+  geom_point(alpha = 0.2, colour = "#619CFF", show.legend = F) +
+  geom_line(grid_DLT_dt, mapping = aes(x = x, y = y_mtd, linetype = "True MTD")) +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  scale_y_continuous(name = "Cabazitaxel", labels = function(y){y*(Ymax - Ymin) + Ymin}) +
+  theme_bw() +
+  labs(title = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ DLT_scenario)
+
+plot_patient_allocation_stage1_H1 = ggplot(dose_combinations_H1 %>% filter(cohort <= 30), aes(x,y)) +
+  geom_point(alpha = 0.2, colour = "#619CFF", show.legend = F) +
+  geom_line(grid_DLT_dt, mapping = aes(x = x, y = y_mtd, linetype = "True MTD")) +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  scale_y_continuous(name = "Cabazitaxel", labels = function(y){y*(Ymax - Ymin) + Ymin}) +
+  theme_bw() +
+  labs(title = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ DLT_scenario)
+
+
+
+plot_patient_allocation_stage1_H0
+plot_patient_allocation_stage1_H1
+
+```
+
+and now we see the dose combinations to which patient from Stage II were allocated in the form of a density. We observe how, with the proposed adaptive randomization algorithm, the mode of the patient allocation density corresponds to the point of highest true probability of efficacy. 
+
+```{r}
+true_optimal_dose_combinations_H1 = grid_EFF_df %>%
+  filter(hypothesis == "alternative hypothesis") %>%
+  group_by(DLT_scenario, EFF_scenario) %>%
+  filter(peff == max(peff)) %>%
+  ungroup() %>%
+  dplyr::select(x,y_mtd, DLT_scenario, EFF_scenario)
+
+
+dose_combinations_stage2_H0 = dose_combinations_H0 %>% 
+  filter(cohort >= (NN_1+1)) %>%
+  mutate(hypothesis = "null hypothesis")
+  
+
+dose_combinations_stage2_H1 = dose_combinations_H1 %>% 
+  filter(cohort >= (NN_1+1)) %>%
+  mutate(hypothesis = "alternative hypothesis")
+
+dose_combinations_stage2 = rbind(dose_combinations_stage2_H0, dose_combinations_stage2_H1)
+
+
+plot_patient_allocation_stage2_H1 = ggplot(MTD_curve_df %>% filter(curve_type == "True MTD"), aes(x = x, y = y)) +
+  geom_line() +
+  geom_density_2d_filled(dose_combinations_stage2_H1, mapping = aes(x = x, y = y), alpha = 0.7, contour_var = "ndensity") + 
+  geom_point(true_optimal_dose_combinations_H1, mapping = aes(x,y_mtd),colour = "red", size = 2, alpha = 0.7) +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  scale_y_continuous(name = "Cabazitaxel", labels = function(y){y*(Ymax - Ymin) + Ymin}) +
+  theme_bw() +
+  labs(title = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ DLT_scenario + EFF_scenario, nrow = 2)
+
+plot_patient_allocation_stage2_H1
+
+ggsave(paste0(path_outputs,"plot_patient_allocation_stage2_H1.pdf"), plot_patient_allocation_stage2_H1, width = 8, height = 5, dpi = 300)
+
+
+proportion_allocation_above_threshold_stage2 = rbind(proportion_allocation_DLT_sc1_EFF_sc1_H1,
+                                                     proportion_allocation_DLT_sc1_EFF_sc2_H1,
+                                                     proportion_allocation_DLT_sc1_EFF_sc3_H1,
+                                                     proportion_allocation_DLT_sc1_EFF_sc4_H1,
+                                                     proportion_allocation_DLT_sc2_EFF_sc1_H1,
+                                                     proportion_allocation_DLT_sc2_EFF_sc2_H1,
+                                                     proportion_allocation_DLT_sc2_EFF_sc3_H1,
+                                                     proportion_allocation_DLT_sc2_EFF_sc4_H1)
+
+
+plot_proportion_allocation_above_threshold_stage2 =
+ggplot(proportion_allocation_above_threshold_stage2, aes(x = as.factor(DLT_scenario), y = value*100, shape = EFF_scenario)) +
+  scale_y_continuous("Proportion (%)", limits = c(65,80)) +
+  scale_x_discrete(" ") +
+  geom_point(aes(color = EFF_scenario), size = 2) +
+  labs(title = "") +
+  theme_bw() +
+  theme(legend.position = "right",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank())
+
+ggsave(paste0(path_outputs,"plot_proportion_allocation_above_threshold_stage2_H1.pdf"), plot_proportion_allocation_above_threshold_stage2, width = 6, height = 4, dpi = 300)
+
+
+
+```
+
+We now see the Bayesian power.
+
+```{r}
+#Bayesian Power
+
+power_or_typeIerror_H0 = rbind(power_or_typeIerror_DLT_sc1_EFF_sc1_H0,
+                              power_or_typeIerror_DLT_sc1_EFF_sc2_H0,
+                              power_or_typeIerror_DLT_sc1_EFF_sc3_H0,
+                              power_or_typeIerror_DLT_sc1_EFF_sc4_H0,
+                              power_or_typeIerror_DLT_sc2_EFF_sc1_H0,
+                              power_or_typeIerror_DLT_sc2_EFF_sc2_H0,
+                              power_or_typeIerror_DLT_sc2_EFF_sc3_H0,
+                              power_or_typeIerror_DLT_sc2_EFF_sc4_H0) %>%
+  mutate(hypothesis = "null hypothesis")
+
+power_or_typeIerror_H1 = rbind(power_or_typeIerror_DLT_sc1_EFF_sc1_H1,
+                              power_or_typeIerror_DLT_sc1_EFF_sc2_H1,
+                              power_or_typeIerror_DLT_sc1_EFF_sc3_H1,
+                              power_or_typeIerror_DLT_sc1_EFF_sc4_H1,
+                              power_or_typeIerror_DLT_sc2_EFF_sc1_H1,
+                              power_or_typeIerror_DLT_sc2_EFF_sc2_H1,
+                              power_or_typeIerror_DLT_sc2_EFF_sc3_H1,
+                              power_or_typeIerror_DLT_sc2_EFF_sc4_H1) %>%
+  mutate(hypothesis = "alternative hypothesis")
+
+
+#We choose a value of delta_u = 0.9. This is a design parameter and needs to be tunned to yield desireable operating characteristics. By default, power_or_typeIerror_H0 and power_or_typeIerror_H1 contain all values of delta_u we could use. This will help to select delta_u.
+
+power_or_typeIerror = rbind(power_or_typeIerror_H0, power_or_typeIerror_H1) %>% filter(delta_u == 0.9)
+
+
+# plot_power_or_typeIerror = ggplot(power_or_typeIerror, aes(x = DLT_scenario, y = value, shape = EFF_scenario)) +
+#   scale_y_continuous("Probability", limits = c(0,1), breaks = seq(0,by=0.1,1)) +
+#   scale_x_discrete("") +
+#   geom_point(aes(color = hypothesis), size = 2) +
+#   theme_bw() +
+#   labs(title = "") +
+#   theme(legend.position = "right",
+#         legend.text = element_text(size = 9),
+#         legend.background = element_rect(fill="transparent"),
+#         legend.key = element_rect(fill="transparent"),
+#         legend.title=element_blank())
+
+plot_power_or_typeIerror = ggplot(power_or_typeIerror, aes(x = DLT_scenario, y = value, fill = EFF_scenario)) +
+  scale_y_continuous("Probability", limits = c(0,1), breaks = seq(0,by=0.1,1)) +
+  scale_x_discrete("") +
+  geom_bar(stat="identity", position=position_dodge(),color="black",alpha = 0.75) +
+  geom_text(aes(label=round(value,2)), vjust=1.5, color="black", position = position_dodge(0.9), size=2.5) + 
+  theme_bw() +
+  labs(title = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ hypothesis) +
+  scale_fill_brewer(palette="YlGn")
+
+plot_power_or_typeIerror
+
+ggsave(paste0(path_outputs,"plot_power.pdf"), plot_power_or_typeIerror, width = 8, height = 4, dpi = 300) 
+
+```
+
+Recommended optimal dose combination density
+
+```{r}
+
+optimal_dose_combination_H1 = rbind(optimal_dose_combination_DLT_sc1_EFF_sc1_H1,
+                                    optimal_dose_combination_DLT_sc1_EFF_sc2_H1,
+                                    optimal_dose_combination_DLT_sc1_EFF_sc3_H1,
+                                    optimal_dose_combination_DLT_sc1_EFF_sc4_H1,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc1_H1,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc2_H1,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc3_H1,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc4_H1)
+
+prop_recommended_dose_combinations_H1 = rbind(optimal_dose_combination_DLT_sc1_EFF_sc1_H1,
+                                    optimal_dose_combination_DLT_sc1_EFF_sc2_H1,
+                                    optimal_dose_combination_DLT_sc1_EFF_sc3_H1,
+                                    optimal_dose_combination_DLT_sc1_EFF_sc4_H1,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc1_H1,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc2_H1,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc3_H1,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc4_H1) %>%
+  mutate(true_peff = ifelse(DLT_scenario == "Dose-toxicity scenario 1" & EFF_scenario == "Dose-efficacy scenario 1",
+                            peff(true_beta0_DLT_sc1_EFF_sc1_H1,
+                                 true_beta1_DLT_sc1_EFF_sc1_H1,
+                                 true_beta2_DLT_sc1_EFF_sc1_H1,
+                                 true_beta3_DLT_sc1_EFF_sc1_H1,
+                                 true_beta4_DLT_sc1_EFF_sc1_H1,
+                                 true_beta5_DLT_sc1_EFF_sc1_H1,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 1" & EFF_scenario == "Dose-efficacy scenario 2", 
+                            peff(true_beta0_DLT_sc1_EFF_sc2_H1,
+                                 true_beta1_DLT_sc1_EFF_sc2_H1,
+                                 true_beta2_DLT_sc1_EFF_sc2_H1,
+                                 true_beta3_DLT_sc1_EFF_sc2_H1,
+                                 true_beta4_DLT_sc1_EFF_sc2_H1,
+                                 true_beta5_DLT_sc1_EFF_sc2_H1,x,y), 
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 1" & EFF_scenario == "Dose-efficacy scenario 3",
+                            peff(true_beta0_DLT_sc1_EFF_sc3_H1,
+                                 true_beta1_DLT_sc1_EFF_sc3_H1,
+                                 true_beta2_DLT_sc1_EFF_sc3_H1,
+                                 true_beta3_DLT_sc1_EFF_sc3_H1,
+                                 true_beta4_DLT_sc1_EFF_sc3_H1,
+                                 true_beta5_DLT_sc1_EFF_sc3_H1,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 1" & EFF_scenario == "Dose-efficacy scenario 4",
+                            peff(true_beta0_DLT_sc1_EFF_sc4_H1,
+                                 true_beta1_DLT_sc1_EFF_sc4_H1,
+                                 true_beta2_DLT_sc1_EFF_sc4_H1,
+                                 true_beta3_DLT_sc1_EFF_sc4_H1,
+                                 true_beta4_DLT_sc1_EFF_sc4_H1,
+                                 true_beta5_DLT_sc1_EFF_sc4_H1,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 2" & EFF_scenario == "Dose-efficacy scenario 1",
+                            peff(true_beta0_DLT_sc2_EFF_sc1_H1,
+                                 true_beta1_DLT_sc2_EFF_sc1_H1,
+                                 true_beta2_DLT_sc2_EFF_sc1_H1,
+                                 true_beta3_DLT_sc2_EFF_sc1_H1,
+                                 true_beta4_DLT_sc2_EFF_sc1_H1,
+                                 true_beta5_DLT_sc2_EFF_sc1_H1,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 2" & EFF_scenario == "Dose-efficacy scenario 2",
+                            peff(true_beta0_DLT_sc2_EFF_sc2_H1,
+                                 true_beta1_DLT_sc2_EFF_sc2_H1,
+                                 true_beta2_DLT_sc2_EFF_sc2_H1,
+                                 true_beta3_DLT_sc2_EFF_sc2_H1,
+                                 true_beta4_DLT_sc2_EFF_sc2_H1,
+                                 true_beta5_DLT_sc2_EFF_sc2_H1,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 2" & EFF_scenario == "Dose-efficacy scenario 3",
+                            peff(true_beta0_DLT_sc2_EFF_sc3_H1,
+                                 true_beta1_DLT_sc2_EFF_sc3_H1,
+                                 true_beta2_DLT_sc2_EFF_sc3_H1,
+                                 true_beta3_DLT_sc2_EFF_sc3_H1,
+                                 true_beta4_DLT_sc2_EFF_sc3_H1,
+                                 true_beta5_DLT_sc2_EFF_sc3_H1,x,y),
+                            peff(true_beta0_DLT_sc2_EFF_sc4_H1,
+                                 true_beta1_DLT_sc2_EFF_sc4_H1,
+                                 true_beta2_DLT_sc2_EFF_sc4_H1,
+                                 true_beta3_DLT_sc2_EFF_sc4_H1,
+                                 true_beta4_DLT_sc2_EFF_sc4_H1,
+                                 true_beta5_DLT_sc2_EFF_sc4_H1,x,y))))))))) %>%
+  mutate(true_pdlt = ifelse(DLT_scenario == "Dose-toxicity scenario 1",
+                            pdlt(true_rho00_DLT_sc1,
+                                 true_rho01_DLT_sc1,
+                                 true_rho10_DLT_sc1,
+                                 true_alpha3_DLT_sc1,x,y),
+                            pdlt(true_rho00_DLT_sc2,
+                                 true_rho01_DLT_sc2,
+                                 true_rho10_DLT_sc2,
+                                 true_alpha3_DLT_sc2,x,y))) %>%
+  mutate(safety = ifelse(true_pdlt <= (theta_Z+0.1), 1, 0)) %>%
+  # group_by(DLT_scenario, EFF_scenario) %>%
+  # summarise(mean(safety))
+  # filter(safety == 1) %>%
+  mutate(abo_030 = ifelse(safety == 1 & true_peff > (0.4 - 0.10), 1, 0)) %>%
+  group_by(DLT_scenario, EFF_scenario) %>%
+  summarise(above_030 = mean(abo_030)*100)
+
+
+prop_recommended_dose_combinations2_H1 = pivot_longer(prop_recommended_dose_combinations_H1, cols = 3, names_to ="threshold", values_to = "value")
+
+prop_recommended_dose_combinations2_H1$threshold = factor(prop_recommended_dose_combinations2_H1$threshold,levels=c("above_030"))
+
+plot_prop_correct_recommendation_H1 = ggplot(prop_recommended_dose_combinations2_H1, aes(x = DLT_scenario, y = value, fill = EFF_scenario)) +
+  scale_y_continuous("Proportion (%)", limits = c(0,100), breaks = seq(0,by=20,100)) +
+  scale_x_discrete(" ") +
+  geom_bar(stat="identity", position=position_dodge(),color="black",alpha = 0.75) +
+  geom_text(aes(label=paste(round(value,0),"%")), vjust=1.5, color="black", position = position_dodge(0.9), size=2.5)+ 
+  theme_bw() +
+  theme(legend.position = "right",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  scale_fill_brewer(palette="OrRd")
+
+
+
+plot_prop_correct_recommendation_H1
+
+
+
+prop_recommended_dose_combinations_H0 = rbind(optimal_dose_combination_DLT_sc1_EFF_sc1_H0,
+                                    optimal_dose_combination_DLT_sc1_EFF_sc2_H0,
+                                    optimal_dose_combination_DLT_sc1_EFF_sc3_H0,
+                                    optimal_dose_combination_DLT_sc1_EFF_sc4_H0,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc1_H0,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc2_H0,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc3_H0,
+                                    optimal_dose_combination_DLT_sc2_EFF_sc4_H0) %>%
+  mutate(true_peff = ifelse(DLT_scenario == "Dose-toxicity scenario 1" & EFF_scenario == "Dose-efficacy scenario 1",
+                            peff(true_beta0_DLT_sc1_EFF_sc1_H0,
+                                 true_beta1_DLT_sc1_EFF_sc1_H0,
+                                 true_beta2_DLT_sc1_EFF_sc1_H0,
+                                 true_beta3_DLT_sc1_EFF_sc1_H0,
+                                 true_beta4_DLT_sc1_EFF_sc1_H0,
+                                 true_beta5_DLT_sc1_EFF_sc1_H0,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 1" & EFF_scenario == "Dose-efficacy scenario 2", 
+                            peff(true_beta0_DLT_sc1_EFF_sc2_H0,
+                                 true_beta1_DLT_sc1_EFF_sc2_H0,
+                                 true_beta2_DLT_sc1_EFF_sc2_H0,
+                                 true_beta3_DLT_sc1_EFF_sc2_H0,
+                                 true_beta4_DLT_sc1_EFF_sc2_H0,
+                                 true_beta5_DLT_sc1_EFF_sc2_H0,x,y), 
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 1" & EFF_scenario == "Dose-efficacy scenario 3",
+                            peff(true_beta0_DLT_sc1_EFF_sc3_H0,
+                                 true_beta1_DLT_sc1_EFF_sc3_H0,
+                                 true_beta2_DLT_sc1_EFF_sc3_H0,
+                                 true_beta3_DLT_sc1_EFF_sc3_H0,
+                                 true_beta4_DLT_sc1_EFF_sc3_H0,
+                                 true_beta5_DLT_sc1_EFF_sc3_H0,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 1" & EFF_scenario == "Dose-efficacy scenario 4",
+                            peff(true_beta0_DLT_sc1_EFF_sc4_H0,
+                                 true_beta1_DLT_sc1_EFF_sc4_H0,
+                                 true_beta2_DLT_sc1_EFF_sc4_H0,
+                                 true_beta3_DLT_sc1_EFF_sc4_H0,
+                                 true_beta4_DLT_sc1_EFF_sc4_H0,
+                                 true_beta5_DLT_sc1_EFF_sc4_H0,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 2" & EFF_scenario == "Dose-efficacy scenario 1",
+                            peff(true_beta0_DLT_sc2_EFF_sc1_H0,
+                                 true_beta1_DLT_sc2_EFF_sc1_H0,
+                                 true_beta2_DLT_sc2_EFF_sc1_H0,
+                                 true_beta3_DLT_sc2_EFF_sc1_H0,
+                                 true_beta4_DLT_sc2_EFF_sc1_H0,
+                                 true_beta5_DLT_sc2_EFF_sc1_H0,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 2" & EFF_scenario == "Dose-efficacy scenario 2",
+                            peff(true_beta0_DLT_sc2_EFF_sc2_H0,
+                                 true_beta1_DLT_sc2_EFF_sc2_H0,
+                                 true_beta2_DLT_sc2_EFF_sc2_H0,
+                                 true_beta3_DLT_sc2_EFF_sc2_H0,
+                                 true_beta4_DLT_sc2_EFF_sc2_H0,
+                                 true_beta5_DLT_sc2_EFF_sc2_H0,x,y),
+                      ifelse(DLT_scenario == "Dose-toxicity scenario 2" & EFF_scenario == "Dose-efficacy scenario 3",
+                            peff(true_beta0_DLT_sc2_EFF_sc3_H0,
+                                 true_beta1_DLT_sc2_EFF_sc3_H0,
+                                 true_beta2_DLT_sc2_EFF_sc3_H0,
+                                 true_beta3_DLT_sc2_EFF_sc3_H0,
+                                 true_beta4_DLT_sc2_EFF_sc3_H0,
+                                 true_beta5_DLT_sc2_EFF_sc3_H0,x,y),
+                            peff(true_beta0_DLT_sc2_EFF_sc4_H0,
+                                 true_beta1_DLT_sc2_EFF_sc4_H0,
+                                 true_beta2_DLT_sc2_EFF_sc4_H0,
+                                 true_beta3_DLT_sc2_EFF_sc4_H0,
+                                 true_beta4_DLT_sc2_EFF_sc4_H0,
+                                 true_beta5_DLT_sc2_EFF_sc4_H0,x,y))))))))) %>%
+  mutate(true_pdlt = ifelse(DLT_scenario == "Dose-toxicity scenario 1",
+                            pdlt(true_rho00_DLT_sc1,
+                                 true_rho01_DLT_sc1,
+                                 true_rho10_DLT_sc1,
+                                 true_alpha3_DLT_sc1,x,y),
+                            pdlt(true_rho00_DLT_sc2,
+                                 true_rho01_DLT_sc2,
+                                 true_rho10_DLT_sc2,
+                                 true_alpha3_DLT_sc2,x,y))) %>%
+  mutate(safety = ifelse(true_pdlt <= (theta_Z+0.1), 1, 0)) %>%
+  # group_by(DLT_scenario, EFF_scenario) %>%
+  # summarise(mean(safety))
+  # filter(safety == 1) %>%
+  mutate(abo_005 = ifelse(safety == 1 & true_peff > (0.15 - 0.10), 1, 0)) %>%
+  group_by(DLT_scenario, EFF_scenario) %>%
+  summarise(above_005 = mean(abo_005)*100)
+
+
+prop_recommended_dose_combinations2_H0 = pivot_longer(prop_recommended_dose_combinations_H0, cols = 3, names_to ="threshold", values_to = "value")
+
+prop_recommended_dose_combinations2_H0$threshold = factor(prop_recommended_dose_combinations2_H0$threshold,levels=c("above_005"))
+
+plot_prop_correct_recommendation_H0 = ggplot(prop_recommended_dose_combinations2_H0, aes(x = DLT_scenario, y = value, fill = EFF_scenario)) +
+  scale_y_continuous("Proportion (%)", limits = c(0,100), breaks = seq(0,by=20,100)) +
+  scale_x_discrete(" ") +
+  geom_bar(stat="identity", position=position_dodge(),color="black",alpha = 0.75) +
+  geom_text(aes(label=paste(round(value,0),"%")), vjust=1.5, color="black", position = position_dodge(0.9), size=2.5)+ 
+  theme_bw() +
+  theme(legend.position = "right",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  scale_fill_brewer(palette="OrRd")
+
+plot_prop_correct_recommendation_H0
+
+plot_prop_correct_recommendation = ggpubr::ggarrange(plot_prop_correct_recommendation_H1, plot_prop_correct_recommendation_H0, nrow = 1, labels = c("A", "B"), common.legend = T, legend = "bottom")
+
+ggsave(paste0(path_outputs,"plot_prop_correct_recommendation.pdf"), plot_prop_correct_recommendation, width = 8, height = 4, dpi = 300)
+
+
+
+prop_recommended_dose_combinations2_joint = rbind(prop_recommended_dose_combinations2_H0,prop_recommended_dose_combinations2_H1)
+
+
+  
+prop_recommended_dose_combinations2_joint$threshold = factor(prop_recommended_dose_combinations2_joint$threshold,levels=c("above_030","above_005"),
+labels = c(expression(paste(theta,"*",{}[E]," = 0.4")),expression(paste(theta,"*",{}[E]," = 0.15"))))
+
+plot_prop_correct_recommendation_joint = ggplot(prop_recommended_dose_combinations2_joint, aes(x = DLT_scenario, y = value, fill = EFF_scenario)) +
+  scale_y_continuous("Proportion (%)", limits = c(0,100), breaks = seq(0,by=20,100)) +
+  scale_x_discrete(" ") +
+  geom_bar(stat="identity", position=position_dodge(),color="black",alpha = 0.75) +
+  geom_text(aes(label=paste(round(value,0),"%")), vjust=1.5, color="black", position = position_dodge(0.9), size=2.5)+ 
+  theme_bw() +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  scale_fill_brewer(palette="OrRd") +
+  facet_grid(~ threshold, labeller = label_parsed)
+
+plot_prop_correct_recommendation_joint
+
+ggsave(paste0(path_outputs,"plot_prop_correct_recommendation.pdf"), plot_prop_correct_recommendation_joint, width = 8, height = 4, dpi = 300)
+
+#Density of distribution of optimal dose combinations
+
+plot_optimal_dose_combination_H1 = ggplot(MTD_curve_H1 %>% filter(type == "True MTD"), aes(x = x, y = y)) +
+  geom_line() +
+  geom_density_2d_filled(optimal_dose_combination_H1, mapping = aes(x = x, y = y), alpha = 0.7, contour_var = "ndensity") + 
+  geom_point(true_optimal_dose_combinations_H1, mapping = aes(x,y_mtd),colour = "red", size = 2, alpha = 0.7) +
+  scale_x_continuous("Cisplatin",breaks = c(0,1/3,2/3,1),labels = function(x){round(x*(Xmax - Xmin) + Xmin,0)}) +
+  scale_y_continuous(name = "Cabazitaxel", labels = function(y){y*(Ymax - Ymin) + Ymin}) +
+  theme_bw() +
+  labs(title = "") +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ DLT_scenario + EFF_scenario, nrow = 2)
+
+plot_optimal_dose_combination_H1
+
+
+ggsave(paste0(path_outputs,"plot_optimal_dose_combination_H1.pdf"), plot_optimal_dose_combination_H1, width = 8, height = 5, dpi = 300)
+
+```
+
+Proportion of recommended optimal dose combination with true probability of efficacy above $\theta_E$
+
+```{r}
+
+propo_optimal_dose_combination_above_threshold_H1 = rbind(optimal_dose_combination_above_threshold_DLT_sc1_EFF_sc1_H1,
+                                                          optimal_dose_combination_above_threshold_DLT_sc1_EFF_sc2_H1,
+                                                          optimal_dose_combination_above_threshold_DLT_sc1_EFF_sc3_H1,
+                                                          optimal_dose_combination_above_threshold_DLT_sc1_EFF_sc4_H1,
+                                                          optimal_dose_combination_above_threshold_DLT_sc2_EFF_sc1_H1,
+                                                          optimal_dose_combination_above_threshold_DLT_sc2_EFF_sc2_H1,
+                                                          optimal_dose_combination_above_threshold_DLT_sc2_EFF_sc3_H1,
+                                                          optimal_dose_combination_above_threshold_DLT_sc2_EFF_sc4_H1)
+
+
+knitr::kable(propo_optimal_dose_combination_above_threshold_H1)
+
+plot_prop_optimal_dose_combination_above_threshold_H1 =
+ggplot(propo_optimal_dose_combination_above_threshold_H1, aes(x = as.factor(DLT_scenario), y = proportion_above_threshold*100, shape = EFF_scenario)) +
+  scale_y_continuous("Proportion (%)", limits = c(95,100)) +
+  scale_x_discrete(" ") +
+  geom_point(aes(color = EFF_scenario), size = 2) +
+  labs(title = "") +
+  theme_bw() +
+  theme(legend.position = "right",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank())
+
+ggsave(paste0(path_outputs,"plot_prop_optimal_dose_combination_above_threshold_H1.pdf"), plot_prop_optimal_dose_combination_above_threshold_H1, width = 6, height = 4, dpi = 300)
+
+```
+
+
+We now show the probability of early stopping due to safety and futility
+
+```{r}
+# Mean posterior probability of early stopping
+
+stopping_rules_H0 = rbind(stopping_rules_DLT_sc1_EFF_sc1_H0,
+                         stopping_rules_DLT_sc1_EFF_sc2_H0,
+                         stopping_rules_DLT_sc1_EFF_sc3_H0,
+                         stopping_rules_DLT_sc1_EFF_sc4_H0,
+                         stopping_rules_DLT_sc2_EFF_sc1_H0,
+                         stopping_rules_DLT_sc2_EFF_sc2_H0,
+                         stopping_rules_DLT_sc2_EFF_sc3_H0,
+                         stopping_rules_DLT_sc2_EFF_sc4_H0) %>%
+  mutate(hypothesis = "null hypothesis")
+
+stopping_rules_H1 = rbind(stopping_rules_DLT_sc1_EFF_sc1_H1,
+                         stopping_rules_DLT_sc1_EFF_sc2_H1,
+                         stopping_rules_DLT_sc1_EFF_sc3_H1,
+                         stopping_rules_DLT_sc1_EFF_sc4_H1,
+                         stopping_rules_DLT_sc2_EFF_sc1_H1,
+                         stopping_rules_DLT_sc2_EFF_sc2_H1,
+                         stopping_rules_DLT_sc2_EFF_sc3_H1,
+                         stopping_rules_DLT_sc2_EFF_sc4_H1) %>%
+  mutate(hypothesis = "alternative hypothesis") 
+
+stopping_rules = rbind(stopping_rules_H0, stopping_rules_H1)
+
+plot_stopping_rules = ggplot(stopping_rules, aes(x = type, y = probability, shape = EFF_scenario)) +
+  scale_y_continuous("Probability") +
+  scale_x_discrete("", labels = c("Futility", "Toxicity (St. I)", "Toxicity (St. II)")) +
+  geom_point(aes(color = EFF_scenario), size = 2) +
+  labs(title = "") +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 9),
+        legend.background = element_rect(fill="transparent"),
+        legend.key = element_rect(fill="transparent"),
+        legend.title=element_blank()) +
+  facet_wrap(~ hypothesis + DLT_scenario, scales = "free")
+
+plot_stopping_rules
+
+ggsave(paste0(path_outputs,"plot_stopping_rules.pdf"), plot_stopping_rules, width = 8, height = 6, dpi = 300)
+
+
+sample_size_stopping_rules_H0 = rbind(sample_size_stopping_rules_DLT_sc1_EFF_sc1_H0,
+                                     sample_size_stopping_rules_DLT_sc1_EFF_sc2_H0,
+                                     sample_size_stopping_rules_DLT_sc1_EFF_sc3_H0,
+                                     sample_size_stopping_rules_DLT_sc1_EFF_sc4_H0,
+                                     sample_size_stopping_rules_DLT_sc2_EFF_sc1_H0,
+                                     sample_size_stopping_rules_DLT_sc2_EFF_sc2_H0,
+                                     sample_size_stopping_rules_DLT_sc2_EFF_sc3_H0,
+                                     sample_size_stopping_rules_DLT_sc2_EFF_sc4_H0) %>%
+  mutate(hypothesis = "null hypothesis",
+         futility = round(futility,2))
+
+sample_size_stopping_rules_H1 = rbind(sample_size_stopping_rules_DLT_sc1_EFF_sc1_H1,
+                                     sample_size_stopping_rules_DLT_sc1_EFF_sc2_H1,
+                                     sample_size_stopping_rules_DLT_sc1_EFF_sc3_H1,
+                                     sample_size_stopping_rules_DLT_sc1_EFF_sc4_H1,
+                                     sample_size_stopping_rules_DLT_sc2_EFF_sc1_H1,
+                                     sample_size_stopping_rules_DLT_sc2_EFF_sc2_H1,
+                                     sample_size_stopping_rules_DLT_sc2_EFF_sc3_H1,
+                                     sample_size_stopping_rules_DLT_sc2_EFF_sc4_H1) %>%
+  mutate(hypothesis = "alternative hypothesis",
+         futility = round(futility,2)) 
+
+sample_size_stopping_rules = rbind(sample_size_stopping_rules_H0, sample_size_stopping_rules_H1)
+
+knitr::kable(sample_size_stopping_rules)
+
+```
+
+
+
