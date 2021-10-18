@@ -1,0 +1,43 @@
+model {
+  
+  #LIKELIHOOD
+
+  for (i in 1:N){
+   
+      Z[i] ~ dbern(p_Z[i])
+      probit(p_Z[i]) <- probit(rho00) + X[i]*(probit(rho10)-probit(rho00))+Y[i]*(probit(rho01)-probit(rho00))+alpha3*X[i]*Y[i]
+      
+      E[i] ~ dbern(p_E[i])
+      probit(p_E[i]) <- beta0 + beta1*X[i] + beta2*Y[i] + beta3*X[i]*Y[i] + beta4*pow(X[i],2) + beta5*pow(Y[i],2)
+      
+  }
+
+  n_dlts ~ dbin(dlt_rate,n_doses)
+
+  #PRIOR DISTRIBUTIONS
+  
+  rho01 ~ dbeta(1,1)
+  rho10 ~ dbeta(1,1)
+  temp ~ dbeta(1,1)
+  rho00 <- temp*min(rho01,rho10)
+  alpha3 ~ dgamma(0.1,0.1)
+  
+  beta0  ~ dnorm(0,0.01)
+  beta1  ~ dgamma(0.1,0.1)
+  beta2  ~ dgamma(0.1,0.1)
+  beta3  ~ dgamma(0.1,0.1)
+  beta4  ~ dnorm(0,0.01)
+  beta5  ~ dnorm(0,0.01)
+   
+  dlt_rate ~ dbeta(0.5,0.5)
+  
+  #POSTERIOR MTD FOR X AND Y
+
+  mtdx1<-((probit(theta_Z)-probit(rho00))-(probit(rho01)-probit(rho00))*Y[N-1])/ ((probit(rho10)-probit(rho00))+alpha3*Y[N-1])
+  mtdy1<-((probit(theta_Z)-probit(rho00))-(probit(rho10)-probit(rho00))*X[N-1])/ ((probit(rho01)-probit(rho00))+alpha3*X[N-1])
+  mtdx2<-((probit(theta_Z)-probit(rho00))-(probit(rho01)-probit(rho00))*Y[N])/ ((probit(rho10)-probit(rho00))+alpha3*Y[N])
+  mtdy2<-((probit(theta_Z)-probit(rho00))-(probit(rho10)-probit(rho00))*X[N])/ ((probit(rho01)-probit(rho00))+alpha3*X[N])
+  
+  safety_stopping <- dlt_rate > (theta_Z + 0.1)
+
+}
