@@ -1,0 +1,21 @@
+"","DLT_scenario","EFF_scenario","type","parameter","value"
+"1","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","rho00",0.0124755357418272
+"2","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","rho10",0.286268274048961
+"3","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","rho01",0.178700951534001
+"4","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","alpha3",-7.32824919102751
+"5","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","beta0",-0.697017306908733
+"6","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","beta1",0.212162017356203
+"7","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","beta2",-1.3062016738581
+"8","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","beta3",-0.322422625414895
+"9","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","beta4",-1.73759435163868
+"10","Dose-toxicity scenario 2","Dose-efficacy scenario 1","Bias","beta5",-0.175215071916171
+"11","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","rho00",0.000195921816518813
+"12","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","rho10",0.107510425740857
+"13","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","rho01",0.0482149882239122
+"14","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","alpha3",56.6206148871124
+"15","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","beta0",6.90349271679598
+"16","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","beta1",1.29245412356846
+"17","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","beta2",3.12951083353501
+"18","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","beta3",5.11166646241045
+"19","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","beta4",9.120809813058
+"20","Dose-toxicity scenario 2","Dose-efficacy scenario 1","MSE","beta5",5.43528571910827

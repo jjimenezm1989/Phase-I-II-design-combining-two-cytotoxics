@@ -1,0 +1,12 @@
+"","DLT_scenario","EFF_scenario","type","value","delta_u"
+"1","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",1,0
+"2","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.946,0.1
+"3","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.859,0.2
+"4","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.76,0.3
+"5","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.669,0.4
+"6","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.571,0.5
+"7","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.483,0.6
+"8","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.412,0.7
+"9","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.337,0.8
+"10","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.243,0.9
+"11","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Type-I error",0.022,1

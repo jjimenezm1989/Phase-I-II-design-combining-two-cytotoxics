@@ -1,0 +1,12 @@
+"","DLT_scenario","EFF_scenario","type","value","delta_u"
+"1","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",1,0
+"2","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.996,0.1
+"3","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.993,0.2
+"4","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.981,0.3
+"5","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.963,0.4
+"6","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.949,0.5
+"7","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.93,0.6
+"8","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.905,0.7
+"9","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.862,0.8
+"10","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.802,0.9
+"11","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Power",0.376,1
