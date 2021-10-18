@@ -1,0 +1,4 @@
+"","DLT_scenario","EFF_scenario","type","probability"
+"1","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Toxicity stopping (St. I)",0
+"2","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Toxicity stopping (St. II)",0
+"3","Dose-toxicity scenario 1","Dose-efficacy scenario 1","Futility stopping",0.119
